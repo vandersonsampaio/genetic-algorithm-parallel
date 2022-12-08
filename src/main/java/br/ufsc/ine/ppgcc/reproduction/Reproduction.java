@@ -4,42 +4,73 @@ import br.ufsc.ine.ppgcc.population.Individual;
 import br.ufsc.ine.ppgcc.population.Parents;
 import br.ufsc.ine.ppgcc.population.Weight;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Random;
-import java.util.stream.IntStream;
 
 @Component
 @RequiredArgsConstructor
 public class Reproduction {
 
+    @Value("${ga-parallel.reproduction.mutation-rate}")
+    private double mutationRate;
     private final Random random;
 
-    public Individual crossover(Parents parents) {
-        int zero = random.nextInt(2);
-        Individual parentOne = parents.getParent(zero == 0);
-        Individual parentTwo = parents.getParent(zero == 1);
+    public List<Individual> crossover(Parents parents) {
+        int lengthChromosome = parents.getParent(Boolean.TRUE).getValues()[0].getChromosome().length;
+        int[] chromosomeSonOne = new int[lengthChromosome];
+        int[] chromosomeSonTwo = new int[lengthChromosome];
+        int length = parents.getParent(Boolean.TRUE).getValues().length;
+        Weight[] weightSonOne = new Weight[length];
+        Weight[] weightSonTwo = new Weight[length];
 
-        int lengthChromosome = parentOne.getValues()[0].getChromosome().length;
-        int cutoff = lengthChromosome / 2;
-        int[] chromosome = new int[lengthChromosome];
-        Weight[] weightSon = new Weight[parentOne.getValues().length];
+        for (int i = 0; i < length; i++) {
+            int cutoffOne = random.nextInt(lengthChromosome);
+            int cutoffTwo = random.nextInt(lengthChromosome);
+            int zero = random.nextInt(2);
 
-        for (int i = 0; i < parentOne.getValues().length; i++) {
+            Individual parentOne = parents.getParent(zero == 0);
+            Individual parentTwo = parents.getParent(zero == 1);
+
             Weight valueOne = parentOne.getValues()[i];
             Weight valueTwo = parentTwo.getValues()[i];
 
-            IntStream.range(0, cutoff).forEach(index -> chromosome[index] = valueOne.getChromosome()[index]);
-            IntStream.range(cutoff, lengthChromosome).forEach(index -> chromosome[index] = valueTwo.getChromosome()[index]);
+            for (int j = 0; j < cutoffOne; j++) {
+                chromosomeSonOne[j] = valueOne.getChromosome()[j];
+            }
 
-            weightSon[i] = new Weight(chromosome);
+            for (int j = 0; j < cutoffTwo; j++) {
+                chromosomeSonTwo[j] = valueTwo.getChromosome()[j];
+            }
+
+            for (int j = cutoffOne; j < lengthChromosome; j++) {
+                chromosomeSonOne[j] = valueTwo.getChromosome()[j];
+            }
+
+            for (int j = cutoffTwo; j < lengthChromosome; j++) {
+                chromosomeSonTwo[j] = valueOne.getChromosome()[j];
+            }
+
+            weightSonOne[i] = new Weight(mutation(chromosomeSonOne));
+            weightSonTwo[i] = new Weight(mutation(chromosomeSonTwo));
         }
 
-        return new Individual(weightSon);
+        return List.of(new Individual(weightSonOne), new Individual(weightSonTwo));
     }
 
-    public Individual mutation(Individual individual) {
-        //TO DO:
-        return individual;
+    private int[] mutation(int[] chromosome) {
+        double rate = random.nextDouble();
+        if (rate <= mutationRate) {
+            int signal = random.nextInt(2);
+            int i = random.nextInt(chromosome.length - 2) + 2;
+            int value = random.nextInt(2);
+
+            chromosome[1] = signal;
+            chromosome[i] = value;
+        }
+
+        return chromosome;
     }
 }

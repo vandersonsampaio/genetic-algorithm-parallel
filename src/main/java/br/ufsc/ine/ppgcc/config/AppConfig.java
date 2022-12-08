@@ -1,6 +1,7 @@
 package br.ufsc.ine.ppgcc.config;
 
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -21,23 +22,23 @@ public class AppConfig {
         return new PearsonsCorrelation();
     }
 
-    @Bean("population_size")
-    public Integer populationSize() {
-        return 20000;
-    }
-
     @Bean("fitness_executors")
-    public ExecutorService fitnessExecutor() {
-        return Executors.newFixedThreadPool(4);
+    public ExecutorService fitnessExecutor(@Value("${ga-parallel.fitness.executor.pool.number}") int pool) {
+        return Executors.newFixedThreadPool(pool);
     }
 
     @Bean("select_executors")
-    public ExecutorService selectExecutor() {
-        return Executors.newFixedThreadPool(1);
+    public ExecutorService selectExecutor(@Value("${ga-parallel.select.executor.pool.number}") int pool) {
+        return Executors.newFixedThreadPool(pool);
     }
 
-    @Bean("number_partitions")
-    public Integer numberPartitions() {
-        return 2;
+    @Bean("number_fitness_partitions")
+    public Integer numberFitnessPartitions(@Value("${ga-parallel.fitness.executor.pool.number}") int partitions) {
+        return partitions;
+    }
+
+    @Bean("number_select_partitions")
+    public Integer numberSelectPartitions(@Value("${ga-parallel.select.executor.pool.number}") int partitions) {
+        return partitions;
     }
 }

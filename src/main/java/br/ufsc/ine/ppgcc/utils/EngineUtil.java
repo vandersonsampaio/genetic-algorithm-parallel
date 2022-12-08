@@ -5,10 +5,11 @@ import br.ufsc.ine.ppgcc.population.Weight;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
-import org.springframework.core.io.ClassPathResource;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.Random;
 import java.util.stream.IntStream;
 
@@ -22,6 +23,12 @@ public class EngineUtil {
     private double[][] metrics;
     private double[] externalMetrics;
 
+    @Value("${ga-parallel.input.external-metrics}")
+    private String inputExternalMetrics;
+
+    @Value("${ga-parallel.input.computed-metrics}")
+    private String inputComputedMetrics;
+
     @PostConstruct
     public void init() {
         try {
@@ -33,13 +40,11 @@ public class EngineUtil {
     }
 
     private double[][] loadComputedMetrics() throws IOException {
-        return csvUtil.readFile(new ClassPathResource("input/computed_metrics.csv")
-                .getFile().getAbsolutePath());
+        return csvUtil.readFile(inputComputedMetrics);
     }
 
     private double[] loadExternalMetrics() throws IOException {
-        double[][] data = csvUtil.readFile(new ClassPathResource("input/external_metrics.csv")
-                .getFile().getAbsolutePath());
+        double[][] data = csvUtil.readFile(inputExternalMetrics);
         double[] result = new double[data.length];
 
         IntStream.range(0, data.length).forEach(index -> result[index] = data[index][0]);
@@ -51,11 +56,10 @@ public class EngineUtil {
 
         IntStream.range(0, lengthWeight).forEach(index -> {
             double value = random.nextDouble();
-            int numberIntegers = random.nextInt(4);
             int signal = random.nextInt(2);
 
-            double weightValue = value * Math.pow(10, numberIntegers) * (signal == 0 ? 1 : -1);
-            weights[index] = new Weight(weightValue);
+            double weightValue = value * (signal == 0 ? 1 : -1);
+            weights[index] = new Weight(BigDecimal.valueOf(weightValue));
         });
 
         return new Individual(weights);
@@ -66,7 +70,7 @@ public class EngineUtil {
 
         for(int i = 0; i < metrics.length; i++){
             for(int j = 0; j < metrics[0].length; j++)
-                dataComputed[i] += individual.getValues()[j].getValue() * metrics[i][j];
+                dataComputed[i] += individual.getValues()[j].getValue().doubleValue() * metrics[i][j];
         }
 
         return dataComputed;

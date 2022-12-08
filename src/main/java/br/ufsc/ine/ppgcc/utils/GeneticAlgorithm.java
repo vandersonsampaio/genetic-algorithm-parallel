@@ -7,9 +7,11 @@ import br.ufsc.ine.ppgcc.selection.Selection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -20,52 +22,56 @@ import java.util.stream.IntStream;
 @Service
 public class GeneticAlgorithm {
 
-    private static final int NUMBER_EXECUTORS = 2;
     private static final Logger logger = LoggerFactory.getLogger(GeneticAlgorithm.class);
     private final Population population;
     private final Selection selection;
     private final ExecutorService fitnessExecutor;
 
+    private final Integer fitnessPartitions;
+
+    private final List<Long> fitnessTime = new ArrayList<>();
+    private final List<Long> selectTime = new ArrayList<>();
+
+    @Value("${ga-parallel.population.generation}")
+    private Integer generations;
+
     public GeneticAlgorithm(Population population, Selection selection,
-                            @Qualifier("fitness_executors") ExecutorService fitnessExecutor) {
+                            @Qualifier("fitness_executors") ExecutorService fitnessExecutor,
+                            @Qualifier("number_fitness_partitions") Integer fitnessPartitions) {
         this.population = population;
         this.selection = selection;
         this.fitnessExecutor = fitnessExecutor;
+        this.fitnessPartitions = fitnessPartitions;
     }
 
-    public void compute(int maxGenerations) throws ExecutionException, InterruptedException {
-        Info info = new Info();
+    public void compute() throws ExecutionException, InterruptedException {
+        Info infoProcess = new Info();
 
         population.startPopulation();
-
-        info.resetStartTime();
         computeFitnessParallel();
-        info.finishCount();
 
-        logger.info("Initial Fitness: {}", info.totalTime());
-
-        for (int index = 0; index < maxGenerations; index++) {
-            info.resetStartTime();
-            selection.select();
-            info.finishCount();
-            logger.info(String.format("Gen %s Select: %d", index, info.totalTime()));
-
-            info.resetStartTime();
+        for (int index = 0; index < generations; index++) {
+            selectTime.addAll(selection.select());
             computeFitnessParallel();
-            info.finishCount();
-            logger.info(String.format("Gen %s Fitness: %d", index, info.totalTime()));
         }
 
+        infoProcess.finishCount();
         Individual better = population.mostPrepared();
         logger.info("Better Individual: {}", better);
         logger.info("Max Coefficient {}", better.getFitness());
+        logger.info("Total Time: {}", infoProcess.totalTime());
+        logger.info("Total Fitness Time: {}", fitnessTime.stream().mapToLong(i -> i).average().getAsDouble());
+        logger.info("Total Select Time: {}", selectTime.stream().mapToLong(i -> i).average().getAsDouble());
+        logger.info("List Fitness Time: {}", Arrays.toString(fitnessTime.toArray()));
+        logger.info("List Select Time: {}", Arrays.toString(selectTime.toArray()));
+
     }
 
     private void computeFitnessParallel() throws InterruptedException, ExecutionException {
         List<Callable<String>> fitnessTasks = new ArrayList<>();
-        IntStream.range(0, NUMBER_EXECUTORS)
+        IntStream.range(0, fitnessPartitions)
                 .forEach(index -> fitnessTasks.add(() -> {
-                    population.computeIndividualMetrics(index);
+                    fitnessTime.add(population.computeIndividualMetrics(index));
                     return "Success";
                 }));
 
