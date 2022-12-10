@@ -61,26 +61,21 @@ public class Population {
                         list.add(individuals.subList(i * divisor, i * divisor + divisor)));
     }
 
-    public long computeIndividualMetrics(int partition) {
+    public long computeFitness(int position) {
         Info info = new Info();
 
-        computeFitness(partition);
-        probabilities(partition);
-
-        info.finishCount();
-        return info.totalTime();
-    }
-
-    private void computeFitness(int position) {
         List<Individual> individualPart = individualsFitnessSplited.get(position);
         IntStream.range(0, individualPart.size()).forEach(index -> {
             double[] computeData = engineUtil.computeMetric(individualPart.get(index));
             individualPart.get(index).setFitness(engineUtil.computeCoefficient(computeData));
         });
+
+        info.finishCount();
+        return info.totalTime();
     }
 
-    private void probabilities(int partition) {
-        List<Individual> individuals = individualsFitnessSplited.get(partition);
+    public void probabilities(int partition) {
+        List<Individual> individuals = individualsSelectSplited.get(partition);
         individuals.sort(Comparator.comparing(Individual::getFitness));
 
         double criteriaTotal = individuals

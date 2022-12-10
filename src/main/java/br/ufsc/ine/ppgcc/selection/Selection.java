@@ -55,6 +55,8 @@ public class Selection {
                 .forEach(index -> tasks.add(() -> {
                     Info info = new Info();
                     int length = population.getPopulationSize() / (2 * numberSelectPartitions);
+                    population.probabilities(index);
+
                     for (int i = 0; i < length; i++) {
                         Parents parents = internalSelect(index);
 

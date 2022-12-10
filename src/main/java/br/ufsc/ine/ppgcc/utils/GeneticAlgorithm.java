@@ -71,7 +71,7 @@ public class GeneticAlgorithm {
         List<Callable<String>> fitnessTasks = new ArrayList<>();
         IntStream.range(0, fitnessPartitions)
                 .forEach(index -> fitnessTasks.add(() -> {
-                    fitnessTime.add(population.computeIndividualMetrics(index));
+                    fitnessTime.add(population.computeFitness(index));
                     return "Success";
                 }));
 
