@@ -37,6 +37,13 @@ public class Selection {
         this.selectExecutor = selectExecutor;
     }
 
+    /**
+     * Método responsável por limpar os filhos da população, selecionar e reproduzir os indivíduos e
+     * promover os novos indivíduos (filhos) a uma nova geração.
+     * @return Lista de Tempos necessário para executar a tarefa de Seleção e Reprodução
+     * @throws ExecutionException Exceção que pode ocorrer durante a execução do ExecutorService
+     * @throws InterruptedException Exceção que pode ocorrer durante a execução do ExecutorService
+     */
     public List<Long> select() throws ExecutionException, InterruptedException {
         population.cleanSons();
 
@@ -47,6 +54,12 @@ public class Selection {
         return selectTime;
     }
 
+    /**
+     * Método privado que gera as tarefas de seleção/reprodução que serão executadas em paralelo.
+     * @return Lista de Tempos necessário para executar a tarefa de Seleção e Reprodução
+     * @throws InterruptedException Exceção que pode ocorrer durante a execução do ExecutorService
+     * @throws ExecutionException Exceção que pode ocorrer durante a execução do ExecutorService
+     */
     private List<Long> computeSelectParallel() throws InterruptedException, ExecutionException {
         List<Long> selectTimes = new ArrayList<>();
         List<Callable<Long>> tasks = new ArrayList<>();

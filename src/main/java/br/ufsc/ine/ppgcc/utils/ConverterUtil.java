@@ -1,5 +1,8 @@
 package br.ufsc.ine.ppgcc.utils;
 
+/**
+ * Classe auxiliar responsável por mapear um valor decimal em um vetor cromossômico
+ */
 public class ConverterUtil {
 
     public static int[] decimalToBinary(int number, boolean positive, int positionFloat)

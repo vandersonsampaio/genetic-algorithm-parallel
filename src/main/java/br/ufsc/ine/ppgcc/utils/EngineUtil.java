@@ -13,6 +13,9 @@ import java.math.BigDecimal;
 import java.util.Random;
 import java.util.stream.IntStream;
 
+/**
+ * Classe auxiliar que suporta algumas atividades necessárias para a execução do AG
+ */
 @RequiredArgsConstructor
 @Component
 public class EngineUtil {
@@ -39,10 +42,20 @@ public class EngineUtil {
         }
     }
 
+    /**
+     * Método que carrega as métricas que serão utilizadas na multiplicação dos vetores dos indivíduos
+     * @return Vetor bidimensional com valores numéricos
+     * @throws IOException Erro de manipulação de arquivo de entrada/saída
+     */
     private double[][] loadComputedMetrics() throws IOException {
         return csvUtil.readFile(inputComputedMetrics);
     }
 
+    /**
+     * Método que carrega as métricas que serão utilizadas no cálculo de correlação que compõe o Fitness do indivíduo
+     * @return Vetor com valores numéricos
+     * @throws IOException Erro de manipulação de arquivo de entrada/saída
+     */
     private double[] loadExternalMetrics() throws IOException {
         double[][] data = csvUtil.readFile(inputExternalMetrics);
         double[] result = new double[data.length];
@@ -51,6 +64,11 @@ public class EngineUtil {
         return result;
     }
 
+    /**
+     * Método gera um indivíduo aleatoriamente
+     * @param lengthWeight Quantidade de pesos que cada indivíduo possui
+     * @return Indivíduo Aleatório
+     */
     public Individual generateIndividual(int lengthWeight) {
         Weight[] weights = new Weight[lengthWeight];
 
@@ -65,6 +83,11 @@ public class EngineUtil {
         return new Individual(weights);
     }
 
+    /**
+     * Calcula um valor combinando os pesos de um indivíduo e as métricas externas carregadas
+     * @param individual Indivíduo que terá seus valores de pesos combinados com as métricas externas
+     * @return Vetor resultante do cálculo
+     */
     public double[] computeMetric(Individual individual) {
         double[] dataComputed = new double[metrics.length];
 
@@ -76,6 +99,11 @@ public class EngineUtil {
         return dataComputed;
     }
 
+    /**
+     * Método que calcula a correlação de Pearson entre duas séries
+     * @param data Série que será correlacionada com as métricas externas
+     * @return Valor Absoluto do coeficiente de correlação
+     */
     public double computeCoefficient(double[] data) {
         return Math.abs(pearsonCorrelation.correlation(data, externalMetrics));
     }

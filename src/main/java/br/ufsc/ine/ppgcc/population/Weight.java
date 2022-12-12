@@ -7,6 +7,9 @@ import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
+/**
+ * Entidade Peso que compõe o indivíduo. Cada peso possui um valor numérico e uma representação Cromossômica.
+ */
 @Getter
 public class Weight {
 
@@ -25,6 +28,9 @@ public class Weight {
         setValue();
     }
 
+    /**
+     * Método que define o Vetor Cromossômico a partir do valor informado
+     */
     private void setChromosome() {
         int positionFloat = String.valueOf(value).split("\\.")[1].length();
         boolean positive = value.doubleValue() >= 0;
@@ -33,6 +39,9 @@ public class Weight {
         chromosome = ConverterUtil.decimalToBinary(number, positive, positionFloat);
     }
 
+    /**
+     * Método que define o valor a partir de um vetor cromossômico
+     */
     private void setValue() {
         int[] clone = chromosome.clone();
         clone[0] = clone[1] = 0;

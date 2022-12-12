@@ -44,6 +44,11 @@ public class GeneticAlgorithm {
         this.fitnessPartitions = fitnessPartitions;
     }
 
+    /**
+     * Método principal do AG. Nele é executado todas as tarefas necessária para realizar a busca desejada
+     * @throws ExecutionException Exceção que pode ocorrer durante a execução do ExecutorService
+     * @throws InterruptedException Exceção que pode ocorrer durante a execução do ExecutorService
+     */
     public void compute() throws ExecutionException, InterruptedException {
         Info infoProcess = new Info();
 
@@ -67,6 +72,11 @@ public class GeneticAlgorithm {
 
     }
 
+    /**
+     * Método privado que gera as tarefas de Fitness que serão executadas em paralelo.
+     * @throws InterruptedException Exceção que pode ocorrer durante a execução do ExecutorService
+     * @throws ExecutionException Exceção que pode ocorrer durante a execução do ExecutorService
+     */
     private void computeFitnessParallel() throws InterruptedException, ExecutionException {
         List<Callable<String>> fitnessTasks = new ArrayList<>();
         IntStream.range(0, fitnessPartitions)

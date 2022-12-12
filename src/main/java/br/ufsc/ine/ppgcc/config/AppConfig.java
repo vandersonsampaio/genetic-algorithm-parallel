@@ -9,6 +9,9 @@ import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+/***
+ * Classe de configuração com a criação dos beans adicionais necessário para a correta execução do AG.
+ */
 @Configuration
 public class AppConfig {
 

@@ -15,6 +15,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.DoubleStream;
 
+/**
+ * Classe auxiliar responsável por manipular arquivos CSV
+ */
 @Component
 public class CsvUtil {
 

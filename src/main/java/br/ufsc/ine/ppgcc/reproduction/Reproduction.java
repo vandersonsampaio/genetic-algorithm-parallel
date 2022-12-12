@@ -10,6 +10,9 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * Classe responsável por realizar o Cruzamento e as eventuais Mutações durante uma Reprodução de Indivíduos
+ */
 @Component
 @RequiredArgsConstructor
 public class Reproduction {
@@ -18,6 +21,13 @@ public class Reproduction {
     private double mutationRate;
     private final Random random;
 
+    /**
+     * Método que a partir de Dois Indivíduos (Parents) retorna novos dois Indivíduos, cada um com parte do Gene
+     * de um Pai e parte do Gene do outro Pai.
+     * O método gera dois pontos de cortes distintos para a geração dos novos dois filhos
+     * @param parents Pais selecionado
+     * @return Lista com dois novos Indivíduos
+     */
     public List<Individual> crossover(Parents parents) {
         int lengthChromosome = parents.getParent(Boolean.TRUE).getValues()[0].getChromosome().length;
         int[] chromosomeSonOne = new int[lengthChromosome];
@@ -60,6 +70,13 @@ public class Reproduction {
         return List.of(new Individual(weightSonOne), new Individual(weightSonTwo));
     }
 
+    /**
+     * Método de Mutação, a partir de uma taxa (Mutation Rate).
+     * A mutação pode ocorrer em algum gene do cromossomo, podendo ser o gene do sinal (+/-) ou em
+     * algum gene do valor numérico
+     * @param chromosome Cromossomo submetido a verificação de mutação
+     * @return vetor cromossômico com mutação ou não
+     */
     private int[] mutation(int[] chromosome) {
         double rate = random.nextDouble();
         if (rate <= mutationRate) {

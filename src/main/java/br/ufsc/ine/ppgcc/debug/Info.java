@@ -1,8 +1,11 @@
 package br.ufsc.ine.ppgcc.debug;
 
+/**
+ * Entidade auxiliar responsavel por registrar tempos de início e fim de alguma execução
+ */
 public class Info {
 
-    private long startTime;
+    private final long startTime;
     private long finalTime;
 
     public Info() {
@@ -15,9 +18,5 @@ public class Info {
 
     public long totalTime() {
         return finalTime - startTime;
-    }
-
-    public void resetStartTime() {
-        startTime = System.currentTimeMillis();
     }
 }
